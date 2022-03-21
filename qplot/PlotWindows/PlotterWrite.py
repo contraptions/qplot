@@ -11,6 +11,7 @@ import numpy as np
 from qplot.Dataclass import qplot_variable
 
 class PlotterWrite(PlotterBase):
+
     def __init__(self, folder, variables, axis, set_variable_names, processors=[]):
 
         self.variables = variables

@@ -106,10 +106,12 @@ class PlotterBase:
         ]
 
     def plot(self):
-        self.process = Process(target=self._plot, args=(), daemon=True)
-        logger.debug("plotting process initialised")
-        self.process.start()
-        logger.debug("plotter process started")
+        # self.process = Process(target=self._plot, args=(), daemon=True)
+        # logger.debug("plotting process initialised")
+        # self.process.start()
+        # logger.debug("plotter process started")
+        print("plotterbase.plot has removed threading for debug")
+        self._plot()
 
     def close_plot(self):
         self.process.kill()
@@ -220,29 +222,29 @@ class PlotterBase:
         length_plot_mapping = {2: self._create_1d_plot, 3: self._create_2d_plot}
 
         # open the qtgraph window
-        self.app = QtGui.QApplication(["qgor {}".format(self.folder.stem)])
+        self.app = QtGui.QApplication([])
         self.win = QtGui.QMainWindow()
 
-        icon_path = str(Path(__file__).parent / self.options.get("icon"))
-        icon = QIcon(icon_path)
-        self.win.setWindowIcon(icon)
+        # icon_path = str(Path(__file__).parent / self.options.get("icon"))
+        # icon = QIcon(icon_path)
+        # self.win.setWindowIcon(icon)
 
         self.area = DockArea()
         self.win.setCentralWidget(self.area)
 
-        # for saving a png of the image. Needs to be above the creation of the buttons
-        directory = self.folder.parent / "pngs"
-        self.image_filename = "{}.png".format(str(directory / self.folder.stem))
+        # # for saving a png of the image. Needs to be above the creation of the buttons
+        # directory = self.folder.parent / "pngs"
+        # self.image_filename = "{}.png".format(str(directory / self.folder.stem))
 
-        pg.setConfigOptions(
-            background=self.options.get("background", "k"),
-            foreground=self.options.get("foreground", "d"),
-        )
+        # pg.setConfigOptions(
+        #     background=self.options.get("background", "k"),
+        #     foreground=self.options.get("foreground", "d"),
+        # )
 
-        # setting the window size
-        window_size = self.options.get("window_size")
-        self.win.resize(*window_size)
-        self.win.setWindowTitle("{}".format(self.folder.stem))
+        # # setting the window size
+        # window_size = self.options.get("window_size")
+        # self.win.resize(*window_size)
+        # self.win.setWindowTitle("{}".format(self.folder.stem))
 
         # list for keeping track of widgets so they can be updated
         self.widgets = []
@@ -270,15 +272,15 @@ class PlotterBase:
         self._register_update()
         if (sys.flags.interactive != 1) or not hasattr(QtCore, "PYQT_VERSION"):
             QtGui.QApplication.instance().exec_()
-
-        # save a screenshot of the plot
-        screenshot = self.win.grab()
-
-        # create the pngs directory if it doesn't exist
-        create_directory_structure(directory)
-        screenshot.save(self.image_filename, "png")
-
-        logger.info("png exported to {}".format(self.image_filename))
+        #
+        # # save a screenshot of the plot
+        # screenshot = self.win.grab()
+        #
+        # # create the pngs directory if it doesn't exist
+        # create_directory_structure(directory)
+        # screenshot.save(self.image_filename, "png")
+        #
+        # logger.info("png exported to {}".format(self.image_filename))
 
     def _move_docks(self):
         # TODO write function to put the docks in a nice place
@@ -335,6 +337,7 @@ class PlotterBase:
 
         self.area.addDock(widget.dock)
 
+
     def crosshairs(self):
         for widget in self.widgets:
             widget.vLine = pg.InfiniteLine(angle=90, movable=False)
@@ -361,4 +364,4 @@ class PlotterBase:
         self.timer.timeout.connect(self._update)
 
         update_time = self.options.get("update_time")
-        self.timer.start(update_time)  # how often the self.update is called [ms]
+        self.timer.start(int(10000))  # how often the self.update is called [ms]
